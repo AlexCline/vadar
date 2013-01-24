@@ -1,3 +1,9 @@
 == VADAR - Vigilant Active Directory AuditoR
 
+When run, this script will query Active Directory for all currently active user accounts.  If the Active Directory record doesn't have an email address, the script will print an error.  The script will then, query the BluePages API at http://bluepages.ibm.com/BpHttpApisv3/slaphapi with the account's email address.  If a BluePages account with the specified email address does not exist, the script will print an error.  If the email address is associated with more than one account, the script will print an error.
+
+To Do: Send an email to the BigData Lab SysAdmins
+
+Note: The file 'env_vars.rb' contains the required AD bind credentials and is not tracked in git.
+
 Created by Alex Cline
