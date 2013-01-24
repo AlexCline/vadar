@@ -1,0 +1,3 @@
+== VADAR - Vigilant Active Directory AuditoR
+
+Created by Alex Cline
