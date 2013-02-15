@@ -16,7 +16,7 @@ $accounts = []
 $verbose  = false
 
 def corp_lookup
-  basedn = "cn=users,dc=corp,dc=vivisimo,dc=com"
+  basedn = "dc=corp,dc=vivisimo,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
   attrs = ['displayName','sAMAccountName','dn','mail', 'serialNumber']
@@ -208,11 +208,11 @@ def send_mail verbose, tagline
     body << "There were no account issues detected this run."
   end
 
-  if verbose
+  if $verbose
     body << "\n\n** The following UserIDs were verified against BluePages **\n\n"
     $accounts.each do |account|
       if account[:pass]
-        body << "#{account[:id]}:x:1:1:#{account[:mail]};#{account[:sn]}::AD"
+        body << "#{account[:id]}:x:1:1:#{account[:mail]};#{account[:sn]}::AD\n"
       end
     end
   end
