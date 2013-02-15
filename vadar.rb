@@ -34,6 +34,7 @@ def corp_lookup
       :msg  => "",
       :mail => "",
       :sn   => "",
+      :pass => false,
     }
 
     if $verbose 
@@ -71,14 +72,14 @@ def bluepages_lookup
 
     if account[:sn] != ""
       if $verbose
-        account[:msg] += "#{account[:id]}: BP lookup with sn: #{account[:sn]}\n"
+        account[:msg] += "#{account[:id]}: BluePages lookup with sn: #{account[:sn]}\n"
       end
       uri = URI("#{w3url}ibmperson/serialnumber=#{account[:sn].to_s}.list/byjson")
       json = Net::HTTP.get(uri)
       data = JSON.parse(json)
 
       if data["search"]["return"]["count"] == 0
-        account[:msg] += "#{account[:id]}: No account in BP with sn: #{account[:sn]}\n"
+        account[:msg] += "#{account[:id]}: No account in BluePages with sn: #{account[:sn]}\n"
         account[:hardfail] = true
         next
       end
@@ -87,10 +88,11 @@ def bluepages_lookup
       attributes.each do |attr|
         if attr["name"] == "mail"
           if !account[:needsEmail] && attr["value"].first != account[:mail]
-            account[:msg] += "#{account[:id]}: Mail in BP doesn't match Mail in AD [#{attr["value"].first} != #{account[:mail]}]\n"
+            account[:msg] += "#{account[:id]}: Mail in BluePages doesn't match Mail in AD [#{attr["value"].first} != #{account[:mail]}]\n"
             account[:updatemail] = true
           elsif attr["value"].first == account[:mail]
             account[:msg] += "#{account[:id]}: Account in AD is valid\n"
+            account[:pass] = true
           end
         end
       end
@@ -100,7 +102,7 @@ def bluepages_lookup
 
     if account[:mail] != ""
       if $verbose
-        account[:msg] += "#{account[:id]}: BP lookup with mail: #{account[:mail]}\n"
+        account[:msg] += "#{account[:id]}: BluePages lookup with mail: #{account[:mail]}\n"
       end
       uri = URI("#{w3url}ibmperson/mail=#{account[:mail].to_s}.list/byjson")
       json = Net::HTTP.get(uri)
@@ -110,7 +112,7 @@ def bluepages_lookup
         if account[:needsSerialNumber]
           account[:msg] += "#{account[:id]}: Please manually check BluePages to see if this user has changed their primary internet address.\n"
         end
-        account[:msg] += "#{account[:id]}: No account in BP with mail: #{account[:mail]}\n"
+        account[:msg] += "#{account[:id]}: No account in BluePages with mail: #{account[:mail]}\n"
         account[:hardfail] = true
         next
       end
@@ -119,10 +121,11 @@ def bluepages_lookup
       attributes.each do |attr|
         if attr["name"] == "serialnumber"
           if !account[:needsSerialNumber] && attr["value"].first != account[:sn]
-            account[:msg] += "#{account[:id]}: SN in BP doesn't match SN in AD [#{attr["value"].first} != #{account[:sn]}]\n"
+            account[:msg] += "#{account[:id]}: SN in BluePages doesn't match SN in AD [#{attr["value"].first} != #{account[:sn]}]\n"
             account[:updatesn] = true
           elsif attr["value"].first == account[:sn]
             account[:msg] += "#{account[:id]}: Account in AD is valid\n"
+            account[:pass] = true
           elsif account[:needsSerialNumber]
             account[:sn] = attr["value"].first
             account[:msg] += "#{account[:id]}: Will update SN in AD\n"
@@ -162,6 +165,7 @@ def corp_save
       result = ldap.modify :dn => account[:dn], :operations => ops
       if result == true
         account[:msg] += "#{account[:id]}: AD update successful\n"
+        account[:pass] = true
       else
         account[:msg] += "#{account[:id]}: AD update unsuccessful: #{result.inspect}\n"
       end
@@ -204,6 +208,15 @@ def send_mail verbose, tagline
     body << "There were no account issues detected this run."
   end
 
+  if verbose
+    body << "\n\n** The following UserIDs were verified against BluePages **\n\n"
+    $accounts.each do |account|
+      if account[:pass]
+        body << "#{account[:id]}:x:1:1:#{account[:mail]};#{account[:sn]}::AD"
+      end
+    end
+  end
+
   Net::SMTP.start(server, 25) do |smtp|
     message = "#{head}\n#{body}\n"
     res = smtp.send_message message, to, from
@@ -215,12 +228,12 @@ end
 if action == "daily_audit"
   corp_lookup
   bluepages_lookup
-  send_mail false, "This is the daily audit summary."
+  send_mail false, "Daily Account Audit:"
 elsif action == "quarterly_report"
   $verbose = true
   corp_lookup
   bluepages_lookup
-  send_mail false, "This is the quarterly audit report."
+  send_mail false, "Quarterly Employment Verification:"
 elsif action == "test"
   $verbose = true
   corp_lookup
@@ -228,6 +241,6 @@ elsif action == "test"
   corp_save
   
   $accounts.each do |account|
-    puts account[:msg]
+    puts account.inspect
   end
 end
