@@ -219,7 +219,7 @@ def send_mail verbose, tagline
 
   Net::SMTP.start(server, 25) do |smtp|
     message = "#{head}\n#{body}\n"
-    res = smtp.send_message message, to, from
+    res = smtp.send_message message, from, to
     smtp.finish
   end
 end
