@@ -17,18 +17,21 @@ def corp_lookup
   basedn = "cn=users,dc=corp,dc=vivisimo,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
-  attrs = ['displayName','sAMAccountName','dn','mail', 'pwdLastSet']
+  attrs = ['sAMAccountName','mail','pwdLastSet']
 
   ldap = Net::LDAP.new
   ldap.host = "corp.vivisimo.com"
   ldap.port = "389"
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
-  
+
+  if !ldap.bind
+    puts "Problem with AD connection.  Aborting!"
+  end
+ 
   ldap.search(:base => basedn, :scope => scope, :filter => filter, :attributes => attrs, :return_result => true) do |entry|
 
     acct = { 
       :id     => entry.sAMAccountName.first.to_s, 
-      :dn     => entry.dn.to_s,
       :mail   => entry.mail.first.to_s,
       :pwdays => 0,
       :notify => false,
@@ -55,14 +58,15 @@ end
 def send_notice acct
   server  = "localhost"
   to      = acct[:mail]
-  from    = "BigData Lab IT <im-bigdata-lab-it-tickets@wwpdl.vnet.ibm.com>"
+  from    = "BigData Lab IT <im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com>"
+  cc      = []
+  bcc     = "acline@us.ibm.com"
   subject = "Your BigData Lab Active Directory Password is about to expire."
   head    = ""
   body    = ""
 
   head << "From: #{from}\n"
   head << "To: #{to}\n"
-  head << "Bcc: acline@us.ibm.com"
   head << "Subject: #{subject}\n"
 
   body << <<-eos
@@ -84,14 +88,16 @@ eos
 
   Net::SMTP.start(server, 25) do |smtp|
     message = "#{head}\n#{body}\n"
-    res = smtp.send_message message, to, from
+    res = smtp.send_message message, from, to, cc, bcc
     smtp.finish
   end
 end
 
+
 corp_lookup
 $accounts.each do |acct|
   if acct[:notify]
+    puts "Sending #{acct[:pwDays]} days notice to #{acct[:mail]}"
     send_notice acct
   end
 end
