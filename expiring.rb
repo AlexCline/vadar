@@ -32,10 +32,15 @@ def corp_lookup
 
     acct = { 
       :id     => entry.sAMAccountName.first.to_s, 
-      :mail   => entry.mail.first.to_s,
       :pwdays => 0,
       :notify => false,
     }
+
+    if entry.responds_to? :mail
+      acct[:mail] = entry.mail.first.to_s
+    else
+      acct[:mail] = "im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com"
+    end
 
     # Calculate the epoch time from windows time and get a number of days till expiration
     unix_time = (entry.pwdLastSet.first.to_i)/10000000-11644473600
