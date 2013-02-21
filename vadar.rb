@@ -241,6 +241,6 @@ elsif action == "test"
   corp_save
   
   $accounts.each do |account|
-    puts account.inspect
+    ap account.inspect
   end
 end
