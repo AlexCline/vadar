@@ -36,7 +36,7 @@ def corp_lookup
       :notify => false,
     }
 
-    if entry.responds_to? :mail
+    if entry.respond_to? :mail
       acct[:mail] = entry.mail.first.to_s
     else
       acct[:mail] = "im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com"
@@ -65,6 +65,7 @@ def send_notice acct
   to      = acct[:mail]
   from    = "BigData Lab IT <im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com>"
   cc      = []
+  bcc     = []
   subject = "Your BigData Lab Active Directory Password is about to expire."
   head    = ""
   body    = ""
