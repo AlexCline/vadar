@@ -60,7 +60,6 @@ def send_notice acct
   to      = acct[:mail]
   from    = "BigData Lab IT <im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com>"
   cc      = []
-  bcc     = "acline@us.ibm.com"
   subject = "Your BigData Lab Active Directory Password is about to expire."
   head    = ""
   body    = ""
