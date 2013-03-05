@@ -63,7 +63,7 @@ end
 def send_notice acct
   server  = "localhost"
   to      = acct[:mail]
-  from    = "BigData Lab IT <im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com>"
+  from    = "BigData Lab IT <im-bigdata-pgh-it-tickets@wwpdl.vnet.ibm.com>"
   cc      = []
   bcc     = []
   subject = "Your BigData Lab Active Directory Password is about to expire."
