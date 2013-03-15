@@ -81,7 +81,7 @@ Your BigData Lab Active Directory Password will expire in #{acct[:pwDays]} days.
 
 Your user ID is: #{acct[:id]}
 
-Change your password before it expires at:  http://corp.vivisimo.com/PasswordReset.aspx
+Change your password before it expires at:  https://corp.vivisimo.com/PasswordReset.aspx
 
 You will need to be in the PGH office or connected to the PGH VPN to use the link above.
 
