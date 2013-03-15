@@ -3,7 +3,6 @@ require 'rubygems'
 require 'bundler/setup'
 require 'net/ldap'
 require 'net/http'
-require 'net/smtp'
 require 'json'
 require 'awesome_print'
 
@@ -217,11 +216,13 @@ def send_mail verbose, tagline
     end
   end
 
-  Net::SMTP.start(server, 25) do |smtp|
-    message = "#{head}\n#{body}\n"
-    res = smtp.send_message message, from, to
-    smtp.finish
-  end
+#  Net::SMTP.start(server, 25) do |smtp|
+  message = "#{head}\n#{body}\n"
+#    res = smtp.send_message message, from, to
+#    smtp.finish
+#  end
+
+  puts message
 end
 
 
