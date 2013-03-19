@@ -13,6 +13,7 @@ load(env_vars) if File.exists?(env_vars)
 action = ARGV[0]
 $accounts = []
 $verbose  = false
+$skipaccounts = ['sp_administrator', 'sp_farm', 'sp_database', 'symantec-nbu']
 
 def corp_lookup
   basedn = "dc=corp,dc=vivisimo,dc=com"
@@ -26,6 +27,10 @@ def corp_lookup
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
   
   ldap.search(:base => basedn, :scope => scope, :filter => filter, :attributes => attrs, :return_result => true) do |entry|
+    # Skip accounts for sharepoint until P9
+    if $skipaccounts.include? entry.sAMAccountName.first.to_s
+      next
+    end
 
     account = { 
       :id   => entry.sAMAccountName.first.to_s, 
