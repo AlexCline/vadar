@@ -53,6 +53,7 @@ def corp_lookup
     else
       account[:msg]  += "#{account[:id]}: No email address in AD\n"
       account[:needsEmail] = true
+      account[:softfail] = true
     end
 
     if entry.respond_to? :serialNumber
@@ -63,6 +64,7 @@ def corp_lookup
     else
       account[:msg] += "#{account[:id]}: No serial number in AD\n"
       account[:needsSerialNumber] = true
+      account[:softfail] = true
     end
 
     $accounts.push account
@@ -95,6 +97,9 @@ def bluepages_lookup
           elsif attr["value"].first == account[:mail]
             account[:msg] += "#{account[:id]}: Account in AD is valid\n"
             account[:pass] = true
+          elsif account[:needsEmail]
+            account[:mail] = attr["value"].first
+            account[:msg] += "#{account[:id]}: Will update SN in AD to #{account[:mail]}\n"
           end
         end
       end
@@ -128,7 +133,7 @@ def bluepages_lookup
             account[:pass] = true
           elsif account[:needsSerialNumber]
             account[:sn] = attr["value"].first
-            account[:msg] += "#{account[:id]}: Will update SN in AD\n"
+            account[:msg] += "#{account[:id]}: Will update SN in AD to #{account[:sn]}\n"
           end
         end
       end
@@ -153,6 +158,7 @@ def corp_save
     ops = []
 
     if account[:hardfail]
+      account[:msg] += "#{account[:id]}: Encountered hardfail, aborting AD update."
       next
     end
 
@@ -174,6 +180,8 @@ def corp_save
       else
         account[:msg] += "#{account[:id]}: AD update unsuccessful: #{result.inspect}\n"
       end
+      # Not actually a failure, but will cause the account audit to be printed.
+      account[:softfail] = true
     end
   end
 end
@@ -205,12 +213,20 @@ def send_mail verbose, tagline
       body << "  #{account[:msg].split(/\r?\n/).last}\n\n"
       details << "#{account[:msg]}\n"
     end
+
+    if account[:softfail]
+      details << "An information update was processed for account: #{account[:id]}\n"
+      details << "  #{account[:msg].split(/\r?\n/).join("\n  ")}\n\n"
+    end
+
   end
 
-  if failures
-    body << "\n\nDetails:\n\n#{details}"
-  else
+  if !failures
     body << "There were no account issues detected this run."
+  end
+
+  if details != ""
+    body << "\n\nDetails:\n\n#{details}"
   end
 
   if $verbose
@@ -235,6 +251,7 @@ end
 if action == "daily_audit"
   corp_lookup
   bluepages_lookup
+  corp_save
   send_mail false, "Daily Account Audit:"
 elsif action == "quarterly_report"
   $verbose = true
