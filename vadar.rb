@@ -75,9 +75,7 @@ def bluepages_lookup
   $accounts.each do |account|
 
     if account[:sn] != ""
-      if $verbose
-        account[:msg] += "#{account[:id]}: BluePages lookup with sn: #{account[:sn]}\n"
-      end
+      account[:msg] += "#{account[:id]}: BluePages lookup with sn: #{account[:sn]}\n"
       uri = URI("#{w3url}ibmperson/serialnumber=#{account[:sn].to_s}.list/byjson")
       json = Net::HTTP.get(uri)
       data = JSON.parse(json)
@@ -105,9 +103,7 @@ def bluepages_lookup
     end
 
     if account[:mail] != ""
-      if $verbose
-        account[:msg] += "#{account[:id]}: BluePages lookup with mail: #{account[:mail]}\n"
-      end
+      account[:msg] += "#{account[:id]}: BluePages lookup with mail: #{account[:mail]}\n"
       uri = URI("#{w3url}ibmperson/mail=#{account[:mail].to_s}.list/byjson")
       json = Net::HTTP.get(uri)
       data = JSON.parse(json)
@@ -136,6 +132,11 @@ def bluepages_lookup
           end
         end
       end
+    end
+
+    if account[:mail] == "" && account[:sn] == ""
+      account[:hardfail] = true
+      account[:msg] += "#{account[:id]}: Account has no email or SN.  Failing.\n"
     end
 
   end
@@ -201,8 +202,8 @@ def send_mail verbose, tagline
     if account[:hardfail]
       failures = true
       body << "A problem was detected with account: #{account[:id]}\n"
-      body << "  #{account[:msg].split(/\r?\n/).last}\n"
-      details << "#{account[:msg]}\n\n"
+      body << "  #{account[:msg].split(/\r?\n/).last}\n\n"
+      details << "#{account[:msg]}\n"
     end
   end
 
