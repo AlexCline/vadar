@@ -211,7 +211,7 @@ def send_mail verbose, tagline
       failures = true
       body << "A problem was detected with account: #{account[:id]}\n"
       body << "  #{account[:msg].split(/\r?\n/).last}\n\n"
-      details << "#{account[:msg]}\n"
+      details << "#{account[:msg]}\n\n"
     end
 
     if account[:softfail]
