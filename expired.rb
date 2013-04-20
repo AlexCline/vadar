@@ -14,13 +14,13 @@ $maxPwAge = 7776000  # 90 days in seconds
 
 def corp_lookup
 
-  basedn = "cn=users,dc=corp,dc=vivisimo,dc=com"
+  basedn = "cn=users,dc=bigdatalab,dc=ibm,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
   attrs = ['sAMAccountName','mail','pwdLastSet']
 
   ldap = Net::LDAP.new
-  ldap.host = "corp.vivisimo.com"
+  ldap.host = "dc-0.bigdatalab.ibm.com"
   ldap.port = "389"
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
 

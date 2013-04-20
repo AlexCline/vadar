@@ -16,13 +16,13 @@ $verbose  = false
 $skipaccounts = ['sp_administrator', 'sp_farm', 'sp_database', 'symantec-nbu', 'BIGDATALAB$']
 
 def corp_lookup
-  basedn = "dc=corp,dc=vivisimo,dc=com"
+  basedn = "dc=bigdatalab,dc=ibm,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
   attrs = ['displayName','sAMAccountName','dn','mail', 'serialNumber']
 
   ldap = Net::LDAP.new
-  ldap.host = "corp.vivisimo.com"
+  ldap.host = "dc-0.bigdatalab.ibm.com"
   ldap.port = "389"
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
   
@@ -149,7 +149,7 @@ end
 
 def corp_save
   ldap = Net::LDAP.new
-  ldap.host = "corp.vivisimo.com"
+  ldap.host = "dc-0.bigdatalab.ibm.com"
   ldap.port = "389"
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
 

@@ -14,13 +14,13 @@ $maxPwAge = 7776000  # 90 days in seconds
 
 def corp_lookup
 
-  basedn = "cn=users,dc=corp,dc=vivisimo,dc=com"
+  basedn = "cn=users,dc=bigdatalab,dc=ibm,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
   attrs = ['sAMAccountName','mail','pwdLastSet']
 
   ldap = Net::LDAP.new
-  ldap.host = "corp.vivisimo.com"
+  ldap.host = "dc-0.bigdatalab.ibm.com"
   ldap.port = "389"
   ldap.auth ENV['BIND_USER'], ENV['BIND_PASS']
 
@@ -81,7 +81,7 @@ Your BigData Lab Active Directory Password will expire in #{acct[:pwDays]} days.
 
 Your user ID is: #{acct[:id]}
 
-Change your password before it expires at:  https://corp.vivisimo.com/PasswordReset.aspx
+Change your password before it expires at:  https://dc-0.bigdatalab.ibm.com/PasswordReset.aspx
 
 You will need to be in the PGH office or connected to the PGH VPN to use the link above.
 
