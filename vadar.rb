@@ -13,7 +13,7 @@ load(env_vars) if File.exists?(env_vars)
 action = ARGV[0]
 $accounts = []
 $verbose  = false
-$skipaccounts = ['sp_administrator', 'sp_farm', 'sp_database', 'symantec-nbu', 'BIGDATALAB$']
+$skipaccounts = ['sp_administrator', 'sp_farm', 'sp_database', 'symantec-nbu', 'BIGDATALAB$', 'CORP$']
 
 def corp_lookup
   basedn = "dc=bigdatalab,dc=ibm,dc=com"
