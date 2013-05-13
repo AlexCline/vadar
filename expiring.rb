@@ -63,7 +63,7 @@ end
 def send_notice acct
   server  = "localhost"
   to      = acct[:mail]
-  from    = "BigData Lab IT <im-bigdata-pgh-it-tickets@wwpdl.vnet.ibm.com>"
+  from    = "BigData Lab IT <im-bigdata-pgh-sysadmins@wwpdl.vnet.ibm.com>"
   cc      = []
   bcc     = []
   subject = "Your BigData Lab Active Directory Password is about to expire."
@@ -82,8 +82,6 @@ Your BigData Lab Active Directory Password will expire in #{acct[:pwDays]} days.
 Your user ID is: #{acct[:id]}
 
 Change your password before it expires at:  https://dc-0.bigdatalab.ibm.com/PasswordReset.aspx
-
-You will need to be in the PGH office or connected to the PGH VPN to use the link above.
 
 The ITCS104 authentication standard states that a password may not be reused until after at least eight iterations. The ITCS104 standard also mandates a minimum change interval of one day, i.e. one change every 24 hours.
 
