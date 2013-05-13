@@ -18,6 +18,7 @@ def corp_lookup
   scope = Net::LDAP::SearchScope_WholeSubtree
   filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
   attrs = ['sAMAccountName','mail','pwdLastSet']
+  skip_accounts = ['CORP$']
 
   ldap = Net::LDAP.new
   ldap.host = "dc-0.bigdatalab.ibm.com"
@@ -29,13 +30,20 @@ def corp_lookup
   end
  
   ldap.search(:base => basedn, :scope => scope, :filter => filter, :attributes => attrs, :return_result => true) do |entry|
+    if skip_accounts.include? entry.sAMAccountName.first.to_s
+      next
+    end
 
-    acct = { 
-      :id     => entry.sAMAccountName.first.to_s, 
-      :mail   => entry.mail.first.to_s,
-      :pwdays => 0,
-      :notify => false,
-    }
+    begin
+      acct = { 
+        :id     => entry.sAMAccountName.first.to_s, 
+        :mail   => entry.mail.first.to_s,
+        :pwdays => 0,
+        :notify => false,
+      }
+    rescue
+      puts "Caught exception: #{entry.inspect}"
+    end
 
     # Calculate the epoch time from windows time and get a number of days till expiration
     unix_time = (entry.pwdLastSet.first.to_i)/10000000-11644473600
