@@ -238,6 +238,8 @@ def send_mail verbose, tagline
     end
   end
 
+  body << "\n\n#{`hostname`.strip} @ #{Time.new.inspect}"
+
 #  Net::SMTP.start(server, 25) do |smtp|
   message = "#{head}\n#{body}\n"
 #    res = smtp.send_message message, from, to
