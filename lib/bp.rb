@@ -14,18 +14,30 @@ class Bp
     @url = ENV['BP_URL']
   end
 
+  def connected?
+    begin
+      uri = URI.parse(@url)
+      res = Net::HTTP.get(uri)
+    rescue
+      raise "Error connecting to BP server. #{uri}"
+    end
+  end
+
   def getManager serial
+    connected?
     result = search("serialnumber", serial)
     result.nil? ? return : mgrserial = getAttr("manager", result).split(',')[0].split('=')[1]
     getMail(mgrserial)
   end
 
   def getMail serial
+    connected?
     result = search("serialnumber", serial)
     return result.nil? ? nil : getAttr("mail", result)
   end
 
   def getSerial mail
+    connected?
     result = search("mail", mail)
     return result.nil? ? nil : getAttr("serialnumber", result)
   end

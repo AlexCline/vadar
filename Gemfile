@@ -10,3 +10,4 @@ gem 'guard-bundler'
 
 gem 'rb-inotify', '~> 0.8.8'
 gem 'fuubar'
+gem 'rb-fsevent'

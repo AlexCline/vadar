@@ -17,7 +17,16 @@ class Ad
     @options = {:base => configuration.config['ad']['basedn']}
   end
 
+  def connected?
+    begin
+      @ldap.bind
+    rescue Exception => e
+      raise "Error connecting to AD server. #{e}"
+    end
+  end
+
   def getManager id
+    connected?
     options = @options.merge({:filter => userFilter(id), :attributes => ['manager']})
     @ldap.search(options) do |entry|
       return entry.respond_to?(:manager) ? entry.manager.first.to_s : nil
@@ -25,6 +34,7 @@ class Ad
   end
 
   def getMail id
+    connected?
     options = @options.merge({:filter => userFilter(id), :attributes => ['mail']})
     @ldap.search(options) do |entry|
       return entry.respond_to?(:mail) ? entry.mail.first.to_s : nil
@@ -33,6 +43,7 @@ class Ad
   end
 
   def getSerial id
+    connected?
     options = @options.merge({:filter => userFilter(id), :attributes => ['serialNumber']})
     @ldap.search(options) do |entry|
       return entry.respond_to?(:serialNumber) ? entry.serialNumber.first.to_s : nil

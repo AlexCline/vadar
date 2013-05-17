@@ -1,0 +1,9 @@
+env_vars: config/env_vars.rb
+ad:
+  host: ad.example.com
+  port: 389
+  basedn: "dc=example,dc=com"
+  # This filter only gets active user accounts.
+  filter: "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+ignored_users:
+  - Administrator

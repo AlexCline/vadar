@@ -7,6 +7,12 @@ describe Ad do
     @lookup = Ad.new
   end
 
+  describe ".connected?" do
+    it "raises and error when the server could not be contacted" do
+      expect { @lookup.connected? }.to raise_error
+    end
+  end
+
   describe ".getManager" do
     it "returns nothing until the manager field is populated"  do
       @lookup.getManager("cline").should eql nil

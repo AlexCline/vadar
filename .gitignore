@@ -1,4 +1,6 @@
 !.gitignore
 env_vars.rb
 Gemfile.lock
-*.swp
+.swp
+tmp
+config.yml
