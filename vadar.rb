@@ -18,8 +18,8 @@ $skipaccounts = ['sp_administrator', 'sp_farm', 'sp_database', 'symantec-nbu', '
 def corp_lookup
   basedn = "dc=bigdatalab,dc=ibm,dc=com"
   scope = Net::LDAP::SearchScope_WholeSubtree
-  filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
-  attrs = ['displayName','sAMAccountName','dn','mail', 'serialNumber']
+  filter = "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2))(sAMAccountName=cline))"
+  attrs = ['displayName','sAMAccountName','dn','mail','serialNumber','manager']
 
   ldap = Net::LDAP.new
   ldap.host = "dc-0.bigdatalab.ibm.com"
@@ -38,6 +38,7 @@ def corp_lookup
       :msg  => "",
       :mail => "",
       :sn   => "",
+      :mgr  => "",
       :pass => false,
     }
 
@@ -64,6 +65,17 @@ def corp_lookup
     else
       account[:msg] += "#{account[:id]}: No serial number in AD\n"
       account[:needsSerialNumber] = true
+      account[:softfail] = true
+    end
+
+    if entry.respond_to? :manager
+      account[:mgr] = entry.manager.first.to_s
+      if $verbose
+        account[:msg] += "#{account[:id]}: manager: #{account[:mgr]}\n"
+      end
+    else
+      account[:msg] += "#{account[:id]}: No manager in AD\n"
+      account[:needsManager] = true
       account[:softfail] = true
     end
 
@@ -264,7 +276,7 @@ elsif action == "test"
   $verbose = true
   corp_lookup
   bluepages_lookup
-  corp_save
+#  corp_save
   
   $accounts.each do |account|
     ap account.inspect
