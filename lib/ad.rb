@@ -26,15 +26,15 @@ class Ad
   end
 
   def setManager id, manager
-    return modify(getDN(id), [:manager, getDN(manager)])
+    return modify getDN(id), [:manager, getDN(manager)]
   end
 
   def setMail id, mail
-    return modify(getDN(id), [:mail, mail])
+    return modify getDN(id), [:mail, mail]
   end
 
   def setSerial id, serial
-    return modify(getDN(id), [:serialNumber, serial])
+    return modify getDN(id), [:serialNumber, serial]
   end
 
   def getDN id
@@ -43,6 +43,7 @@ class Ad
 
   def getManager id
     dn = search id, :manager
+    return dn.nil? ? dn : getMail(getId(dn))
   end
 
   def getMail id
@@ -54,7 +55,7 @@ class Ad
   end
 
   def getId dn
-    return search dn, :sAMAccountName, "dn"
+    return search dn, :sAMAccountName, "distinguishedName"
   end
 
   def modify dn, opts

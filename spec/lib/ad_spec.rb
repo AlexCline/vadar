@@ -18,6 +18,10 @@ describe Ad do
       @ad.getId("CN=Alex Cline,CN=Users,DC=bigdatalab,DC=ibm,DC=com").should
         eql "cline"
     end
+
+    it "raises an error if it couldn't find the user" do
+      expect{ @ad.setSerial("falseuser", "0000")}.to raise_error
+    end
   end
 
   describe ".setSerial" do
