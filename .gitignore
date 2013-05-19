@@ -4,3 +4,4 @@ Gemfile.lock
 .swp
 tmp
 config.yml
+*.log
