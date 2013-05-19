@@ -3,7 +3,14 @@ ad:
   host: dc-0.bigdatalab.ibm.com
   port: 389
   basedn: "dc=bigdatalab,dc=ibm,dc=com"
-  filter: "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2))(FIELD=VALUE))"
+  filter: "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - mail
+    - serialNumber
+    - manager # This is the field containing the manager's email
+
 ignored_users:
   - sp_administrator
   - sp_farm

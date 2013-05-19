@@ -1,14 +1,21 @@
 # Person.rb
 require 'ad'
 require 'bp'
+require 'base'
 
-class Person
-  attr_accessor :id, :dn, :msg, :mail, :sn, :mgr
+class Person < Base
+  attr_accessor :id, :dn, :sn, :mail, :mgr
 
-  def initialize id
+  def initialize id, dn, sn, mgr, mail
     @id = id
+    @dn = dn
+    @sn = sn
+    @mgr = mgr
+    @mail = mail
+
     @ad = Ad.new
     @bp = Bp.new
+    logger.debug "Creating person #{id}"
   end
 
   def getSerial
@@ -38,24 +45,39 @@ class Person
   end
 
   def getManager
-    @mgr = @ad.getManager(@id)
-    getSerial if @sn.nil?
-    @mgr = @bp.getManager(@sn)
-    raise "#{@id}: Unable to find manager in AD or BP." if @mgr.nil?
+    @mgr ||= @ad.getManager(@id)
+    if @mgr.nil?
+      getSerial if @sn.nil?
+      @mgr = @bp.getManager(@sn)
+      raise "#{@id}: Unable to find manager in AD or BP." if @mgr.nil?
+    end
   end
 
   def syncSerial
-    # get serial from bp
-    # get serial from ad
-    # if ad != bp update ad
-    # if no serial in ad or bp raise error
+    adsn = @ad.getSerial(@id)
+    getMail if @mail.nil?
+    bpsn = @bp.getSerial(@mail)
+
+    if adsn != bpsn
+      @ad.setSerial(@id, bpsn)
+    else
+      return true
+    end
   end
 
   def syncMail
+    admail = @ad.getMail(@id)
+    getSerial if @sn.nil?
+    bpmail = @bp.getMail(@sn)
 
+    if admail != bpmail
+      @ad.setMail(@id, bpmail)
+    else
+      return true
+    end
   end
 
   def syncManager
-
+    
   end
 end
