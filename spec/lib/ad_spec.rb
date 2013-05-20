@@ -24,12 +24,18 @@ describe Ad do
   end
 
   describe ".connected?" do
-    it "returns nil if the connection is alive" do
-      @ad.connected?.should eql nil
+    it "returns true if the connection is alive" do
+      @ad.connected?.should eql true
     end
 
     # It will also raise an error if the connection isn't alive,
     # but that's hard to test without an actual failed connection.
+  end
+
+  describe ".getIdFromSerial" do
+    it "returns an id when passed a serial" do
+      @ad.getIdFromSerial("1G4959897")
+    end
   end
 
   describe ".getId" do
@@ -65,11 +71,11 @@ describe Ad do
 
   describe ".setManager" do
     it "returns true if the manager was set successfully" do
-      @ad.setManager("cline", "leonard").should eql true
+      @ad.setManager("cline", "1G5001897", "rleonard@us.ibm.com").should eql true
     end
 
     it "raises an error if it couldn't find the user" do
-      expect{ @ad.setManager("falseuser", "trueuser")}.to raise_error
+      expect{ @ad.setManager("falseuser", "0000", "trueuser@us.ibm.com")}.to raise_error
     end
   end
 
@@ -84,17 +90,31 @@ describe Ad do
     end
   end
 
-  describe ".getManager" do
+  describe ".getManagerMail" do
     it "returns the email of the manager"  do
-      @ad.getManager("cline").should eql "rleonard@us.ibm.com"
+      @ad.getManagerMail("cline").should eql "rleonard@us.ibm.com"
     end
 
     it "returns nil when the user doesn't have a manager specified" do
-      @ad.getManager("PassManager").should eql nil
+      @ad.getManagerMail("PassManager").should eql nil
     end
 
     it "raises an error when the user doesn't exist" do
-      expect { @ad.getManager("falseuser") }.to raise_error
+      expect { @ad.getManagerMail("falseuser") }.to raise_error
+    end
+  end
+
+  describe ".getManagerSerial" do
+    it "returns the email of the manager"  do
+      @ad.getManagerSerial("cline").should eql "1G5001897"
+    end
+
+    it "returns nil when the user doesn't have a manager specified" do
+      @ad.getManagerSerial("PassManager").should eql nil
+    end
+
+    it "raises an error when the user doesn't exist" do
+      expect { @ad.getManagerSerial("falseuser") }.to raise_error
     end
   end
 

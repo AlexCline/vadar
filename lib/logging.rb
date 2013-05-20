@@ -1,4 +1,5 @@
 require 'logger'
+require 'configuration'
 
 module Logging
   def logger
@@ -9,6 +10,7 @@ module Logging
   @loggers = {}
 
   class << self
+
     def output
       @out ||= STDERR
     end
@@ -20,12 +22,17 @@ module Logging
       end
     end
 
+    def configuration
+      @configuration ||= Configuration.new
+    end
+
     def logger_for(classname)
       @loggers[classname] ||= configure_logger_for(classname)
     end
 
     def configure_logger_for(classname)
       Logger.new(output).tap do |logger|
+        logger.level = Logger.const_get configuration.config['log_level']
         logger.progname = classname
       end
     end

@@ -15,7 +15,6 @@ class Person < Base
 
     @ad = Ad.new
     @bp = Bp.new
-    logger.debug "Creating person #{id}"
   end
 
   def getSerial
@@ -45,12 +44,13 @@ class Person < Base
   end
 
   def getManager
-    @mgr ||= @ad.getManager(@id)
+    @mgr ||= @ad.getManagerSerial(@id)
     if @mgr.nil?
       getSerial if @sn.nil?
-      @mgr = @bp.getManager(@sn)
+      @mgr = @bp.getManagerSerial(@sn)
       raise "#{@id}: Unable to find manager in AD or BP." if @mgr.nil?
     end
+    @mgr
   end
 
   def syncSerial
@@ -59,6 +59,7 @@ class Person < Base
     bpsn = @bp.getSerial(@mail)
 
     if adsn != bpsn
+      logger.debug "#{@id} Setting serial to #{bpsn}"
       @ad.setSerial(@id, bpsn)
     else
       return true
@@ -71,6 +72,7 @@ class Person < Base
     bpmail = @bp.getMail(@sn)
 
     if admail != bpmail
+      logger.debug "#{@id} Setting email address to #{bpmail}"
       @ad.setMail(@id, bpmail)
     else
       return true
@@ -78,6 +80,15 @@ class Person < Base
   end
 
   def syncManager
-    
+    admgrsn = @ad.getManagerSerial(@id)
+    bpmgrsn = @bp.getManagerSerial(@sn)
+
+    if admgrsn != bpmgrsn
+      mgrmail = @bp.getMail(bpmgrsn)
+      logger.debug "#{@id} Setting manager to #{bpmgrsn}, #{mgrmail}"
+      @ad.setManager(@id, bpmgrsn, mgrmail)
+    else
+      return true
+    end
   end
 end

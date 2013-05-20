@@ -29,6 +29,7 @@ class Ad < Base
       logger.debug msg
       raise msg
     end
+    true
   end
 
   def getAllAccounts
@@ -36,7 +37,7 @@ class Ad < Base
     opts = @options.merge({:filter => @filter.clone, 
                            :attributes => @attributes})
     connected?
-    logger.debug "Getting all user accounts."
+    logger.info "Getting all user accounts."
     @ldap.search(opts) do |entry|
       id = entry.sAMAccountName.first.to_s
       if !configuration.config['ignored_users'].include? id
@@ -49,29 +50,37 @@ class Ad < Base
         users << hash
       end
     end
+    logger.info "Got #{users.size} accounts."
     raise "Got 0 accounts" if users.size == 0
     users
   end
 
-  def setManager id, manager
-    return modify getDN(id), [:manager, getDN(manager)]
+  def setManager id, mgrsn, mgrmail
+    sn = modify id, [:departmentNumber, mgrsn]
+    #r2 = getManagerSerial(id) == mgrsn
+    mail = modify id, [:department, mgrmail]
+    #r4 = getManagerMail(id) == mgrmail
+    return sn && mail
   end
 
   def setMail id, mail
-    return modify getDN(id), [:mail, mail]
+    return modify id, [:mail, mail]
   end
 
   def setSerial id, serial
-    return modify getDN(id), [:serialNumber, serial]
+    return modify id, [:serialNumber, serial]
   end
 
   def getDN id
     return search id, :dn
   end
 
-  def getManager id
-    dn = search id, :manager
-    return dn.nil? ? dn : getMail(getId(dn))
+  def getManagerSerial id
+    return search id, :departmentNumber
+  end
+
+  def getManagerMail id
+    return search id, :department
   end
 
   def getMail id
@@ -86,7 +95,12 @@ class Ad < Base
     return search dn, :sAMAccountName, "distinguishedName"
   end
 
-  def modify dn, opts
+  def getIdFromSerial sn
+    return search sn, 'sAMAccountName', 'serialNumber'
+  end
+
+  def modify id, opts
+    dn = getDN(id)
     connected?
     logger.debug "Modifying #{dn} with #{opts}"
     result = @ldap.modify(:dn => dn, :operations => [[:replace].concat(opts)])

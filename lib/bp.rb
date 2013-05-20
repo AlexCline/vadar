@@ -23,23 +23,29 @@ class Bp
     end
   end
 
-  def getManager serial
+  def getManagerSerial serial
     connected?
     result = search("serialnumber", serial)
-    result.nil? ? return : mgrserial = getAttr("manager", result).split(',')[0].split('=')[1]
-    getMail(mgrserial)
+    raise "Unable to find a manager for the serial: #{serial}" if result.nil?
+    mgrserial = getAttr("manager", result).split(',')[0].split('=')[1]
+  end
+
+  def getManagerMail serial
+    getMail(getManagerSerial(serial))
   end
 
   def getMail serial
     connected?
     result = search("serialnumber", serial)
-    return result.nil? ? nil : getAttr("mail", result)
+    raise "Unable to find an email for the serial: #{serial}" if result.nil?
+    return getAttr("mail", result)
   end
 
   def getSerial mail
     connected?
     result = search("mail", mail)
-    return result.nil? ? nil : getAttr("serialnumber", result)
+    raise "Unable to find a serial for the mail: #{serial}" if result.nil?
+    return getAttr("serialnumber", result)
   end
 
   private

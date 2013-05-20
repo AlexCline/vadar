@@ -9,7 +9,8 @@ ad:
     - distinguishedName
     - mail
     - serialNumber
-    - manager # This is the field containing the manager's email
+    - department # This is the field containing the manager's email
+    - departmentNumber
 
 ignored_users:
   - sp_administrator
@@ -18,3 +19,5 @@ ignored_users:
   - symantec-nbu
   - BIGDATALAB$
   - CORP$
+
+log_level: WARN

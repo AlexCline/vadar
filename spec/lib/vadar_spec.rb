@@ -19,4 +19,6 @@ describe Vadar do
       #puts @vadar.lookupAccounts.inspect
   	end
   end
+
+  describe ""
 end

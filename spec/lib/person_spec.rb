@@ -80,20 +80,22 @@ describe Person do
       @bp = Bp.new
     end
 
-    xit "Assigns the manager in BP to AD if it's empty" do
-      @ad.setManager(@person.id, "cline").should eql true
-      @ad.getManager(@person.id).should eql "acline@us.ibm.com"
-      @bp.getManager(@person.sn).should eql "rleonard@us.ibm.com"
+    it "Assigns the manager in BP to AD if it's wrong" do
+      @ad.setManager(@person.id, "0000", "falseuser@us.ibm.com").should eql true
+      @ad.getManagerMail(@person.id).should eql "falseuser@us.ibm.com"
+      @ad.getManagerSerial(@person.id).should eql "0000"
       @person.syncManager.should eql true
-      @ad.getManager(@person.id).should eql "rleonard@us.ibm.com"
+      @person.getManager.should eql "rleonard@us.ibm.com"
+      @ad.getManagerSerial(@person.id).should eql "1G5001897"
     end
 
-    xit "Gets the manager from AD if it's already set" do
-      admgr = @ad.getManager(@person.id)
-      bpmgr = @bp.getManager(@person.sn)
+    it "Gets the manager from AD if it's already set" do
+      admgr = @ad.getManagerSerial(@person.id)
+      bpmgr = @bp.getManagerSerial(@person.sn)
       admgr.should eql bpmgr
       @person.syncManager.should eql true
-      @ad.getManager(@person.id).should eql "rleonard@us.ibm.com"
+      @ad.getManagerMail(@person.id).should eql "rleonard@us.ibm.com"
+      @ad.getManagerSerial(@person.id).should eql "1G5001897"
     end
 
     # It will also return false if it fails to set the manager in AD,
@@ -128,9 +130,7 @@ describe Person do
     end
 
     it "returns the user's manager's email address" do
-      @person.getSerial
-      @person.getManager
-      @person.mgr.should eql "rleonard@us.ibm.com"
+      @person.getManager.should eql "rleonard@us.ibm.com"
     end
   end
 end
