@@ -1,11 +1,12 @@
 # Vadar.rb
 # The VADAR class
 require 'configuration'
-require 'base'
-require 'ad'
-require 'person'
+require 'logging'
+require 'controllers/ad_controller'
+require 'controllers/person_controller'
 
-class Vadar < Base
+class Vadar
+  include Logging
   attr_writer :configuration
   
   def configuration
@@ -13,13 +14,35 @@ class Vadar < Base
   end
 
   def initialize
-  	@ad = Ad.new
+  	@ad = AdController.new
+    @people = []
   end
 
   def lookupAccounts
   	accts = @ad.getAllAccounts
-  	#puts accts
-  	accts
+    accts.each do |acct|
+      if configuration.config["ignored_users"].include? acct["sAMAccountName"]
+        next
+      end
+
+      @people << PersonController.new(acct["sAMAccountName"], acct["distinguishedName"], 
+        acct["serialNumber"], acct["department"], acct["mail"])
+    end
+  	@people
+  end
+
+  def syncAllAccounts verbose=false
+    result = []
+    #@people << PersonController.new("cline", nil, nil, nil, nil)
+    result << "Looking up all accounts." if verbose
+    lookupAccounts
+    @people.each do |person|
+      result << "#{person.id}: Syncing account." if verbose
+      sync = person.sync
+      result << "#{person.id}: Account looks ok." if verbose and person.log.size == 0
+      result << person.log.map{|l| "#{person.id}: #{l}"} if sync == false or verbose
+    end
+    result
   end
 
 end

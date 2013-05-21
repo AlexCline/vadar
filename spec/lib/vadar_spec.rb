@@ -20,5 +20,10 @@ describe Vadar do
   	end
   end
 
-  describe ""
+  describe ".syncAllAccounts" do
+    # Disabled so it doesn't smash the servers syncing everyone's accounts.
+    xit "doesn't raise an error" do
+      expect { @vadar.syncAllAccounts }.to_not raise_error
+    end
+  end
 end
