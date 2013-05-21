@@ -1,9 +1,9 @@
-# AdLookup
 require 'net/ldap'
 require 'configuration'
-require 'base'
+require 'logging'
 
-class Ad < Base
+class Ad
+  include Logging
   attr_writer :configuration, :ldap
   
   def configuration
@@ -55,52 +55,8 @@ class Ad < Base
     users
   end
 
-  def setManager id, mgrsn, mgrmail
-    sn = modify id, [:departmentNumber, mgrsn]
-    #r2 = getManagerSerial(id) == mgrsn
-    mail = modify id, [:department, mgrmail]
-    #r4 = getManagerMail(id) == mgrmail
-    return sn && mail
-  end
-
-  def setMail id, mail
-    return modify id, [:mail, mail]
-  end
-
-  def setSerial id, serial
-    return modify id, [:serialNumber, serial]
-  end
-
-  def getDN id
-    return search id, :dn
-  end
-
-  def getManagerSerial id
-    return search id, :departmentNumber
-  end
-
-  def getManagerMail id
-    return search id, :department
-  end
-
-  def getMail id
-    return search id, :mail
-  end
-
-  def getSerial id
-    return search id, :serialNumber
-  end
-
-  def getId dn
-    return search dn, :sAMAccountName, "distinguishedName"
-  end
-
-  def getIdFromSerial sn
-    return search sn, 'sAMAccountName', 'serialNumber'
-  end
-
   def modify id, opts
-    dn = getDN(id)
+    dn = search id, :dn
     connected?
     logger.debug "Modifying #{dn} with #{opts}"
     result = @ldap.modify(:dn => dn, :operations => [[:replace].concat(opts)])

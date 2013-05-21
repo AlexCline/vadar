@@ -1,27 +1,43 @@
 #! /usr/bin/env ruby -S rspec
 require 'spec_helper'
-require 'person'
-require 'ad'
-require 'bp'
+require 'controllers/person_controller'
+require 'controllers/ad_controller'
+require 'controllers/bp_controller'
 
-describe Person do
+describe PersonController do
   before :each do
-    @person = Person.new "corpuser", 
+    @person = PersonController.new "corpuser", 
       "CN=Corp User,CN=Users,DC=bigdatalab,DC=ibm,DC=com",
       "1G4959897", "rleonard@us.ibm.com", "acline@us.ibm.com"
   end
 
   describe "#new" do
     it "creates a person" do
-      @person.should be_an_instance_of Person
+      @person.should be_an_instance_of PersonController
       @person.id.should eql "corpuser"
+    end
+  end
+
+  describe ".log" do
+    it "returns an array which has log entries in it" do
+      @person.log.should be_an_instance_of Array
+    end
+  end
+
+  describe ".sync" do
+    it "Does all the stuff that the individual sync methods do" do
+      expect { @person.sync }.to_not raise_error
+    end
+
+    it "raises an error if the person doesn't exist in BP" do
+      expect { PersonController.new("cvalcarcel").sync }.to raise_error
     end
   end
 
   describe ".syncSerial" do
     before :each do
-      @ad = Ad.new
-      @bp = Bp.new
+      @ad = AdController.new
+      @bp = BpController.new
     end
 
     it "Assigns the serial number in BP to AD if it's empty" do
@@ -46,8 +62,8 @@ describe Person do
 
   describe ".syncMail" do
     before :each do
-      @ad = Ad.new
-      @bp = Bp.new
+      @ad = AdController.new
+      @bp = BpController.new
     end
 
     it "Assigns the email in BP to AD if it's empty" do
@@ -76,8 +92,8 @@ describe Person do
     # another field in AD to use for the manager's email.
 
     before :each do
-      @ad = Ad.new
-      @bp = Bp.new
+      @ad = AdController.new
+      @bp = BpController.new
     end
 
     it "Assigns the manager in BP to AD if it's wrong" do
@@ -85,8 +101,8 @@ describe Person do
       @ad.getManagerMail(@person.id).should eql "falseuser@us.ibm.com"
       @ad.getManagerSerial(@person.id).should eql "0000"
       @person.syncManager.should eql true
-      @person.getManager.should eql "rleonard@us.ibm.com"
-      @ad.getManagerSerial(@person.id).should eql "1G5001897"
+      @person.getManagerMail.should eql "rleonard@us.ibm.com"
+      @person.getManagerSerial.should eql "1G5001897"
     end
 
     it "Gets the manager from AD if it's already set" do
@@ -94,8 +110,8 @@ describe Person do
       bpmgr = @bp.getManagerSerial(@person.sn)
       admgr.should eql bpmgr
       @person.syncManager.should eql true
-      @ad.getManagerMail(@person.id).should eql "rleonard@us.ibm.com"
-      @ad.getManagerSerial(@person.id).should eql "1G5001897"
+      @person.getManagerMail.should eql "rleonard@us.ibm.com"
+      @person.getManagerSerial.should eql "1G5001897"
     end
 
     # It will also return false if it fails to set the manager in AD,
@@ -124,13 +140,23 @@ describe Person do
     end
   end
 
-  describe ".getManager" do
+  describe ".getManagerMail" do
     it "throws an error if the user doesn't have a serial" do
-      expect { Person.new("falseuser").getManager }.to raise_error 
+      expect { PersonController.new("falseuser").getManagerMail }.to raise_error 
     end
 
     it "returns the user's manager's email address" do
-      @person.getManager.should eql "rleonard@us.ibm.com"
+      @person.getManagerMail.should eql "rleonard@us.ibm.com"
+    end
+  end
+
+  describe ".getManagerSerial" do
+    it "throws an error if the user doesn't have a mail" do
+      expect { PersonController.new("falseuser").getManagerSerial }.to raise_error 
+    end
+
+    it "returns the user's manager's serial" do
+      @person.getManagerSerial.should eql "1G5001897"
     end
   end
 end
