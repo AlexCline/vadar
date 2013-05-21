@@ -19,5 +19,6 @@ ignored_users:
   - symantec-nbu
   - BIGDATALAB$
   - CORP$
+  - PassManager
 
 log_level: WARN
