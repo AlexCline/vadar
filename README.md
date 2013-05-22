@@ -1,20 +1,44 @@
-# VADAR - Vigilant Active Directory AuditoR
+VADAR - Vigilant Active Directory AuditoR
+=========================================
 
-When run, this script will query Active Directory for all currently active user accounts.  If the Active Directory record doesn't have an email address, the script will print an error.
+Vadar will keep AD and BP in sync and generate useful reports.
 
-The script will then, query the BluePages API at http://bluepages.ibm.com/BpHttpApisv3/slaphapi with the account's email address.
+When an account in AD is created, it will need either an IBM Serial Number (in the serialNumber field), or a valid internet address (in the mail field).  The script will then try to synchronize the following information based off those two items:
 
-If a BluePages account with the specified email address does not exist, the script will print an error.  If the email address is associated with more than one account, the script will print an error.
+- Serial Number
+- Internet Address
+- Manager's Serial Number
+- Manager's Internet Address
+- Job Title
+- Phone number
+- Description field (FULLNAME;SERIAL;INTERNETID)
 
-## Output
-    [acline@cline vadar]$ ruby vadar.rb 
-    No Email address in AD for CN=Administrator,OU=Service Accounts,DC=corp,DC=vivisimo,DC=com
-    No active account in BluePages for email sharepointservice@vivisimo.com for user CN=SharePoint Administrator,CN=Managed Service Accounts,DC=corp,DC=vivisimo,DC=com
+Examples
+--------
 
-## To Do:
-* Send an email to the BigData Lab SysAdmins
+	# Run the default task to sync AD and BP and print the results to the console
+    ./vadar.rb
 
-## Note
-_The file 'env_vars.rb' contains the required AD bind credentials and is not tracked in git._
+    # Run the default task and print it in a format for emailing
+    ./vadar.rb --format=email
 
-Created by Alex Cline
+    # Run the quarterly employment verification and format for emailing
+    ./vadar.rb quarterly_report --format=email
+
+    # Check for expired passwords
+    ./vadar.rb check_expired
+
+    # Check for expiring passwords and send emails to users
+    ./vadar.rb notify_expiring
+
+To Dos
+------
+
+- Implement expiring/expired passwords check
+- Sync job title
+- Sync phone number
+
+Note
+----
+
+_The file 'config/env_vars.rb' contains the required AD bind credentials and is not tracked in git._
