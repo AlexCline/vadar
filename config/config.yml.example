@@ -5,5 +5,11 @@ ad:
   basedn: "dc=example,dc=com"
   # This filter only gets active user accounts.
   filter: "(&(objectClass=person)(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - mail
 ignored_users:
   - Administrator
+
+log_level: WARN
