@@ -15,8 +15,7 @@ When an account in AD is created, it will need either a Serial Number (in the se
 
 Examples
 --------
-
-	# Run the default task to sync AD and BP and print the results to the console
+    # Run the default task to sync AD and BP and print the results to the console
     ./vadar.rb
 
     # Run the default task and print it in a format for emailing
@@ -30,6 +29,13 @@ Examples
 
     # Check for expiring passwords and send emails to users
     ./vadar.rb notify_expiring
+    
+Development
+-----------
+
+To run the tests (you're required to be connected to the correct network).
+    
+    bundle exec rake spec    
 
 To Dos
 ------
@@ -37,6 +43,8 @@ To Dos
 - Implement expiring/expired passwords check
 - Sync job title
 - Sync phone number
+- Set description field
+- Check for disabled users in groups and send notification
 
 Note
 ----
