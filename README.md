@@ -3,7 +3,7 @@ VADAR - Vigilant Active Directory AuditoR
 
 Vadar will keep AD and BP in sync and generate useful reports.
 
-When an account in AD is created, it will need either an IBM Serial Number (in the serialNumber field), or a valid internet address (in the mail field).  The script will then try to synchronize the following information based off those two items:
+When an account in AD is created, it will need either a Serial Number (in the serialNumber field), or a valid internet address (in the mail field).  The script will then try to synchronize the following information based off those two items:
 
 - Serial Number
 - Internet Address
